@@ -1,0 +1,178 @@
+services:
+  # --- File Cloud ---
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - PUID=1000  # Change to your PUID from the 'id' command
+      - PGID=1000  # Change to your PGID from the 'id' command
+      - TZ=America/Sao_Paulo # Your timezone
+    volumes:
+      - /srv/docker/nextcloud:/config
+      - /srv/data/nextcloud:/data
+
+  # --- Media Automation ---
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    ports:
+      - "8989:8989"
+    volumes:
+      - /srv/docker/sonarr:/config
+      - /mnt/storage:/media
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    ports:
+      - "7878:7878"
+    volumes:
+      - /srv/docker/radarr:/config
+      - /mnt/storage:/media
+
+  # --- Indexer ---
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /srv/docker/prowlarr:/config
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - WEBUI_PORT=8081
+    ports:
+      - "8081:8081"
+      - "6881:6881"
+      - "6881:6881/udp"
+    volumes:
+      - /srv/docker/qbittorrent:/config
+      - /mnt/storage:/media
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - TZ=America/Sao_Paulo
+    ports:
+      - "8191:8191"
+    restart: unless-stopped
+
+  # --- Media Server ---
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - VERSION=docker
+    volumes:
+      - /srv/docker/plex:/config
+      - /mnt/storage:/media
+    devices:
+      - /dev/dri:/dev/dri
+
+
+  # --- Subtitles ---
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /srv/docker/bazarr:/config
+      - /mnt/storage:/media
+    ports:
+      - "6767:6767"
+    restart: unless-stopped
+
+  # --- Unpacker for files ---
+  unpackerr:
+    image: golift/unpackerr:latest
+    container_name: unpackerr
+    environment:
+      - TZ=America/Sao_Paulo
+      - UN_SONARR_URL=http://sonarr:8989
+      - UN_SONARR_APIKEY=${SONARR_APIKEY}
+      - UN_RADARR_URL=http://radarr:7878
+      - UN_RADARR_APIKEY=${RADARR_APIKEY}
+    volumes:
+      - /mnt/storage/downloads:/downloads
+    restart: unless-stopped
+
+
+  # --- Library Manager --- 
+  readarr:
+    image: lscr.io/linuxserver/readarr:0.4.18-develop
+    container_name: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York # Change to your timezone
+    volumes:
+      - /srv/docker/readarr/config:/config
+      - /srv/docker/data/books:/books
+      - /mnt/storage/downloads/:/downloads
+      - /mnt/storage:/media # Added to fix qBittorrent path mismatch
+    ports:
+      - 8787:8787
+    restart: unless-stopped
+  calibre:
+    image: lscr.io/linuxserver/calibre:latest
+    container_name: calibre
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /srv/docker/calibre/config:/config
+      - /srv/docker/data/books:/books
+    ports:
+      - 8084:8080 # Calibre GUI (HTTP)
+      - 8181:8181 # Calibre GUI (HTTPS - Use this one!)
+      - 8085:8081 # Calibre Webserver
+    restart: unless-stopped
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - DOCKER_MODS=linuxserver/mods:universal-calibre # Required to enable ebook conversion tools!
+    volumes:
+      - /srv/docker/calibre-web/config:/config
+      - /srv/docker/data/books:/books
+    ports:
+      - 8083:8083 # This is the web interface your dad will use!
+    restart: unless-stopped
