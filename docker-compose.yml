@@ -229,6 +229,8 @@ services:
     volumes:
       - /srv/docker/grafana/data:/var/lib/grafana
       - /srv/docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - /srv/docker/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /srv/docker/grafana/dashboards:/etc/grafana/dashboards:ro
     ports:
       - "3000:3000"
     networks:
