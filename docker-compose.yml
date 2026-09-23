@@ -190,6 +190,22 @@ services:
     networks:
       - monitoring
 
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    container_name: node-exporter
+    restart: unless-stopped
+    command:
+      - --path.procfs=/host/proc 
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/host/root
+
+    volumes:
+      - /proc:/host/proc:ro 
+      - /sys:/host/sys:ro 
+      - /:/host/root:ro
+
+    networks:
+      - monitoring
 
 networks:
   monitoring:
