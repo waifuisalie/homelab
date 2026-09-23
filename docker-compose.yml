@@ -228,6 +228,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
     volumes:
       - /srv/docker/grafana/data:/var/lib/grafana
+      - /srv/docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
     ports:
       - "3000:3000"
     networks:
