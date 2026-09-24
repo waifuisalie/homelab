@@ -1,0 +1,11 @@
+groups:
+  - name: homelab_alerts
+    rules: 
+      - alert: HDD2AlmostFull
+        expr:  (1 - (node_filesystem_avail_bytes{mountpoint="/mnt/hdd2"} / node_filesystem_size_bytes{mountpoint="/mnt/hdd2"})) * 100 > 98
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "/mnt/hdd2 is almost full"
+          description: "Disk usage on /mnt/hdd2 has been above 98% for more than 5 minutes (currently {{ $value | printf \"%1.f\" }}%)."

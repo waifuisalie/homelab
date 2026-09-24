@@ -3,9 +3,7 @@ global:
   evaluation_interval: 60s
 
 rule_files:
-  # - "first.rules"
-  # - "second.rules"
-  #
+  - "alert_rules.yml"
 
 storage:
   tsdb:
