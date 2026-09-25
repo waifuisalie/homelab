@@ -254,6 +254,9 @@ services:
     container_name: otel-collector
     restart: unless-stopped
     user: "0:0"
+    command:
+      - --config=/etc/otelcol-contrib/config.yaml
+      - --feature-gates=transform.flatten.logs
     volumes:
       - /srv/docker/otel-collector/config:/etc/otelcol-contrib
       - /var/lib/docker/containers:/var/lib/docker/containers:ro

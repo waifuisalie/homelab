@@ -2,15 +2,25 @@ receivers:
   filelog:
     include:
       - /var/lib/docker/containers/*/*.log
+    include_file_path: true
     start_at: end
     operators:
       - type: json_parser
         timestamp:
           parse_from: attributes.time
           layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+      - type: regex_parser
+        parse_from: attributes["log.file.path"]
+        regex: '.*/containers/(?P<container_id>[a-f0-9]+)/.*\.log'
 
 processors:
   batch: {}
+  transform:
+    flatten_data: true
+    log_statements:
+      - context: log
+        statements:
+          - set(resource.attributes["container_id"], attributes["container_id"])
 
 exporters:
   otlphttp:
@@ -22,5 +32,5 @@ service:
   pipelines:
     logs:
       receivers: [filelog]
-      processors: [batch]
+      processors: [batch, transform]
       exporters: [otlphttp]
