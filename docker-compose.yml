@@ -7,9 +7,9 @@ services:
     ports:
       - "8080:80"
     environment:
-      - PUID=1000  # Change to your PUID from the 'id' command
-      - PGID=1000  # Change to your PGID from the 'id' command
-      - TZ=America/Sao_Paulo # Your timezone
+      - PUID=1000  
+      - PGID=1000  
+      - TZ=America/Sao_Paulo 
     volumes:
       - /srv/docker/nextcloud:/config
       - /srv/data/nextcloud:/data
@@ -138,7 +138,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/New_York # Change to your timezone
+      - TZ=America/Sao_Paulo
     volumes:
       - /srv/docker/readarr/config:/config
       - /srv/docker/data/books:/books
@@ -147,6 +147,7 @@ services:
     ports:
       - 8787:8787
     restart: unless-stopped
+
   calibre:
     image: lscr.io/linuxserver/calibre:latest
     container_name: calibre
@@ -159,7 +160,7 @@ services:
       - /srv/docker/data/books:/books
     ports:
       - 8084:8080 # Calibre GUI (HTTP)
-      - 8181:8181 # Calibre GUI (HTTPS - Use this one!)
+      - 8181:8181 # Calibre GUI (HTTPS)
       - 8085:8081 # Calibre Webserver
     restart: unless-stopped
 
@@ -175,9 +176,10 @@ services:
       - /srv/docker/calibre-web/config:/config
       - /srv/docker/data/books:/books
     ports:
-      - 8083:8083 # This is the web interface your dad will use!
+      - 8083:8083 # This is the web interface 
     restart: unless-stopped
 
+  # --- Monitoring --- 
   prometheus:
     image: prom/prometheus:v3.14.0
     container_name: prometheus
@@ -236,6 +238,16 @@ services:
     networks:
         - monitoring
 
+  loki:
+    image: grafana/loki:3.7.8
+    container_name: loki
+    restart: unless-stopped
+    volumes:
+      - /srv/docker/loki/config:/etc/loki
+      - /srv/docker/loki/data:/loki
+
+    networks:
+        - monitoring
 
 networks:
   monitoring:
