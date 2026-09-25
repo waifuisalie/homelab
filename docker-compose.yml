@@ -249,5 +249,15 @@ services:
     networks:
         - monitoring
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.161.0
+    container_name: otel-collector
+    restart: unless-stopped
+    volumes:
+      - /srv/docker/otel-collector/config:/etc/otelcol-contrib
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+        - monitoring
+
 networks:
   monitoring:
