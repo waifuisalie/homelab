@@ -253,6 +253,7 @@ services:
     image: otel/opentelemetry-collector-contrib:0.161.0
     container_name: otel-collector
     restart: unless-stopped
+    user: "0.0"
     volumes:
       - /srv/docker/otel-collector/config:/etc/otelcol-contrib
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
