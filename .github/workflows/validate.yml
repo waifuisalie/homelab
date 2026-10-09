@@ -1,0 +1,46 @@
+name: Validate configs
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Create dummy .env for compose validation
+        run: cp .env.example .env
+
+      - name: Validate docker-compose.yml
+        run: docker compose config -q
+
+      - name: Validate dashboard JSON
+        run: python3 -m json.tool grafana/dashboards/homelab.json > /dev/null
+
+      - name: Validate prometheus.yml
+        run: |
+          docker run --rm -v "$(pwd)/prometheus:/etc/prometheus" \
+            --entrypoint promtool prom/prometheus:v3.14.0 \
+            check config /etc/prometheus/prometheus.yml
+
+      - name: Validate alert_rules.yml
+        run: |
+          docker run --rm -v "$(pwd)/prometheus:/etc/prometheus" \
+            --entrypoint promtool prom/prometheus:v3.14.0 \
+            check rules /etc/prometheus/alert_rules.yml
+
+      - name: Validate Loki config
+        run: |
+          docker run --rm -v "$(pwd)/loki:/etc/loki" \
+            --entrypoint loki grafana/loki:3.7.8 \
+            -config.file=/etc/loki/local-config.yaml -verify-config
+
+      - name: Validate OTel Collector config
+        run: |
+          docker run --rm -v "$(pwd)/otel-collector:/etc/otelcol-contrib" \
+            --entrypoint /otelcol-contrib otel/opentelemetry-collector-contrib:0.161.0 \
+            validate --config=file:/etc/otelcol-contrib/config.yaml \
+            --feature-gates=transform.flatten.logs
