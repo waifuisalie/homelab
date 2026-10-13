@@ -1,0 +1,15 @@
+apiVersion: 1
+datasources:
+  - name: Economy Hub
+    uid: economy-hub-pg  # economy-hub dashboard JSON references this UID
+    type: grafana-postgresql-datasource
+    access: proxy
+    url: economy-hub-db:5432
+    user: grafana_reader
+    jsonData:
+      database: economy_hub
+      sslmode: disable
+      postgresVersion: 1700
+      timescaledb: false
+    secureJsonData:
+      password: ${ECONOMY_HUB_DB_PASSWORD}

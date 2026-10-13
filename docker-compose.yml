@@ -244,11 +244,15 @@ services:
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_PLUGINS_PREINSTALL_SYNC=netsage-sankey-panel@1.1.4
+      - ECONOMY_HUB_DB_PASSWORD=${ECONOMY_HUB_DB_PASSWORD}
     volumes:
       - /srv/docker/grafana/data:/var/lib/grafana
       - /srv/docker/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - /srv/docker/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - /srv/docker/grafana/dashboards:/etc/grafana/dashboards:ro
+      # Economy Hub (separate compose project in ~/economy-hub) ships its own dashboards
+      - /home/waifuisalie/economy-hub/grafana/dashboards:/etc/grafana/dashboards-economy-hub:ro
     ports:
       - "3000:3000"
     networks:
